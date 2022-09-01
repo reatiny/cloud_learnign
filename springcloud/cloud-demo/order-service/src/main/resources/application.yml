@@ -1,0 +1,57 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/cloud_order?useSSL=false
+    username: root
+    password: wangchenrui
+    driver-class-name: com.mysql.jdbc.Driver
+  application:
+    name: orderservice
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+      discovery:
+        cluster-name: HZ
+#        ephemeral: false # 设置为非临时实例
+#        namespace: 492a7d5d-237b-46a1-a99a-fa8e98e4b0f9 # 命名空间，填ID
+
+mybatis:
+  type-aliases-package: cn.itcast.user.pojo
+  configuration:
+    map-underscore-to-camel-case: true
+logging:
+  level:
+    cn.itcast: debug
+  pattern:
+    dateformat: MM-dd HH:mm:ss:SSS
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://127.0.0.1:10086/eureka
+userservice: # 给某个微服务配置负载均衡规则，这里是userservice服务
+  ribbon:
+    NFLoadBalancerRuleClassName: com.alibaba.cloud.nacos.ribbon.NacosRule # 负载均衡规则
+#    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule # 负载均衡规则
+
+# Ribbon默认是采用懒加载，即第一次访问时才会去创建LoadBalanceClient，请求时间会很长
+# 饥饿加载则会在项目启动时创建，降低第一次访问的耗时，通过下面配置开启饥饿加载
+ribbon:
+  eager-load:
+    enabled: true
+    clients:
+      - userservice
+
+## Feign自定义配置
+#feign:
+#  client:
+#    config:
+#      default: # 这里用default就是全局配置，如果是写服务名称，则是针对某个微服务的配置
+#        loggerLevel: FULL #  日志级别
+
+# 真实情况下连接数等参数需要做压测来决定
+feign:
+  httpclient:
+    enabled: true # 开启feign对HttpClient的支持
+    max-connections: 200 # 最大的连接数
+    max-connections-per-route: 50 # 每个路径的最大连接数
